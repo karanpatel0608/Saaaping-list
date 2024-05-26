@@ -29,8 +29,8 @@ class _GroceryListState extends State<GroceryList> {
         'flutter-prep-d10e6-default-rtdb.firebaseio.com', 'shopping-list.json');
     final response = await http.get(url);
     // print(response);
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+    print('Response Status: ${response.statusCode}');
+    print('Response Body: ${response.body}');
     final Map<String, dynamic> listData = json.decode(response.body);
 
     final List<GroceryItem> loadedItems = [];
@@ -54,7 +54,7 @@ class _GroceryListState extends State<GroceryList> {
     });
   }
 // ERROR DE RAHA THA KUCH
-  // void _addItem() async {   
+  // void _addItem() async {
   //   await Navigator.of(context).push<GroceryItem>(
   //     MaterialPageRoute(
   //       builder: (ctx) => const NewItem(),
@@ -64,18 +64,24 @@ class _GroceryListState extends State<GroceryList> {
   //   _loadItems();
   // }
 
-void _addItem() async {
-  final newItem = await Navigator.of(context).push<GroceryItem>(
-    MaterialPageRoute(
-      builder: (ctx) => const NewItem(),
-    ),
-  );
+  void _addItem() async {
+    final newItem = await Navigator.of(context).push<GroceryItem>(
+      MaterialPageRoute(
+        builder: (ctx) => const NewItem(),
+      ),
+    );
 
-  // if (newItem != null) {
-    _loadItems();
-  // }
-}
+    // if (newItem != null) {
+    // _loadItems();
+    // }
 
+    if (newItem == null) {
+      return;
+    }
+    setState(() {
+      _groceryItems.add(newItem);
+    });
+  }
 
   void _removeItem(GroceryItem item) {
     setState(() {
