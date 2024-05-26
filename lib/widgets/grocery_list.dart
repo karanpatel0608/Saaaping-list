@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shopping_list/data/categories.dart';
-import 'package:shopping_list/data/dummy_items.dart';
-import 'package:shopping_list/models/category.dart';
+// import 'package:shopping_list/data/dummy_items.dart';
+// import 'package:shopping_list/models/category.dart';
 import 'package:shopping_list/models/grocery_item.dart';
 import 'package:shopping_list/widgets/new_item.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +17,8 @@ class GroceryList extends StatefulWidget {
 
 class _GroceryListState extends State<GroceryList> {
   List<GroceryItem> _groceryItems = [];
+  var _isLoading = true;
+  String? _error;
 
   @override
   initState() {
@@ -26,13 +28,21 @@ class _GroceryListState extends State<GroceryList> {
 
   void _loadItems() async {
     final url = Uri.https(
-        'flutter-prep-d10e6-default-rtdb.firebaseio.com', 'shopping-list.json');
+        // flutter-prep-d10e6-default-rtdb.firebaseio
+        'abc.firebaseio.com',
+        'shopping-list.json');
     final response = await http.get(url);
-    // print(response);
-    print('Response Status: ${response.statusCode}');
-    print('Response Body: ${response.body}');
-    final Map<String, dynamic> listData = json.decode(response.body);
+    print(response.statusCode);
+    if (response.statusCode >= 400) {
+      setState(() {
+        _error = 'Failed to Fetch data. Please try again later.';
+      });
+    }
 
+    // print('Response Status: ${response.statusCode}');
+    // print('Response Body: ${response.body}');
+    final Map<String, dynamic> listData = json.decode(response.body);
+    
     final List<GroceryItem> loadedItems = [];
     for (final item in listData.entries) {
       final category = categories.entries
@@ -51,6 +61,7 @@ class _GroceryListState extends State<GroceryList> {
     }
     setState(() {
       _groceryItems = loadedItems;
+      _isLoading = false;
     });
   }
 // ERROR DE RAHA THA KUCH
@@ -95,6 +106,10 @@ class _GroceryListState extends State<GroceryList> {
       child: Text('No Items Added Yet!!'),
     );
 
+    if (_isLoading) {
+      content = const Center(child: CircularProgressIndicator());
+    }
+
     if (_groceryItems.isNotEmpty) {
       content = ListView.builder(
         itemCount: _groceryItems.length,
@@ -118,6 +133,9 @@ class _GroceryListState extends State<GroceryList> {
       );
     }
 
+    if (_error != null) {
+      content = Center(child: Text(_error!));
+    }
     return Scaffold(
         appBar: AppBar(
             title: const Text('Your Groceries'),
